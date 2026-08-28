@@ -46,7 +46,7 @@ npm run build
 npm start
 ```
 
-Configura el webhook de Mercado Pago después de publicar la URL. Verifica que el endpoint acepte `POST` y que `MP_ACCESS_TOKEN`, `DATABASE_URL`, `DIRECT_URL`, `NEXT_PUBLIC_SITE_URL` y `RESEND_API_KEY` estén configuradas como secretos.
+Configura el webhook de Mercado Pago después de publicar la URL. Verifica que el endpoint acepte `POST` y que `MP_ACCESS_TOKEN`, `DATABASE_URL`, `NEXT_PUBLIC_SITE_URL` y `RESEND_API_KEY` estén configuradas como secretos. `DIRECT_URL` debe configurarse también si ejecutas migraciones desde Vercel; el build puede generar el cliente usando `DATABASE_URL`.
 
 ## Pruebas
 
