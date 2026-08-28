@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Card {
+  id           String        @id @default(uuid())
+  title        String
+  description  String
+  ctaText      String
+  targetUrl    String
+  platform     String
+  email        String
+  editToken    String        @unique
+  currentBid   Float         @default(0.0)
+  position     Int           @default(100)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  bids         Bid[]
+  transactions Transaction[]
+
+  @@index([position])
+}
+
+model Bid {
+  id        String   @id @default(uuid())
+  cardId    String
+  amount    Float
+  status    String
+  createdAt DateTime @default(now())
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([cardId, status])
+}
+
+model Transaction {
+  id             String   @id @default(uuid())
+  paymentId      String   @unique
+  cardId         String
+  amount         Float
+  status         String
+  rawWebhookData String
+  createdAt      DateTime @default(now())
+  card           Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([cardId, status])
+}
