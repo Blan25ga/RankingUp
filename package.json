@@ -2,6 +2,7 @@
   "name": "puestazo",
   "version": "0.1.0",
   "private": true,
+  "description": "Plataforma de subastas publicitarias en tiempo real.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,8 +10,8 @@
     "lint": "eslint",
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
-    "db:migrate": "prisma migrate deploy"
-    ,"test": "vitest run"
+    "db:migrate": "prisma migrate deploy",
+    "test": "vitest run"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
