@@ -1,15 +1,25 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendOutbidEmail, sendWelcomeEmail } from "@/lib/email";
+import { getRequiredServerEnv } from "@/lib/env";
 
 export async function POST(req: Request) {
   try {
+    const signature = req.headers.get("x-signature") || req.headers.get("X-Signature");
+    const webhookSecret = process.env.MP_WEBHOOK_SECRET?.trim();
+
+    if (webhookSecret && !signature) {
+      return NextResponse.json({ error: "Webhook no autenticado" }, { status: 401 });
+    }
+
     const url = new URL(req.url);
     const body = await req.json().catch(() => ({}));
 
     // Mercado Pago puede enviar datos tanto por query params (IPN) como en el body (Webhooks)
     const paymentId = url.searchParams.get("data.id") || url.searchParams.get("id") || body?.data?.id || body?.id;
     const topic = url.searchParams.get("type") || url.searchParams.get("topic") || body?.type || body?.action;
+
+    const accessToken = getRequiredServerEnv("MP_ACCESS_TOKEN");
 
     if (!paymentId || (topic !== "payment" && topic !== "payment.created")) {
       // Retornar 200 OK rápido si no es una notificación de pago relevante para no bloquear a Mercado Pago
@@ -21,7 +31,6 @@ export async function POST(req: Request) {
     // 1. CONSULTA DIRECTA Y SEGURA A LA API DE MERCADO PAGO
     // De esta manera prevenimos spoofing (datos falsificados enviados a nuestro webhook),
     // ya que sólo confiamos en lo que Mercado Pago nos devuelve directamente desde su servidor.
-    const accessToken = process.env.MP_ACCESS_TOKEN || "APP_USR-mock-token";
     const mpResponse = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,

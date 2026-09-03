@@ -1,7 +1,8 @@
 import { Resend } from "resend";
 import { siteConfig } from "@/config/site";
 
-const resend = new Resend(process.env.RESEND_API_KEY || "re_mock");
+const resendApiKey = process.env.RESEND_API_KEY?.trim();
+const resend = resendApiKey && resendApiKey !== "re_mock" ? new Resend(resendApiKey) : null;
 
 export async function sendOutbidEmail(
   email: string,
@@ -18,7 +19,7 @@ export async function sendOutbidEmail(
     `\n=== [EMAIL ENVIADO A: ${email}] ===\nAsunto: ¡Te han quitado el Puesto #1 en ${siteConfig.name}!\nCuerpo: Tu anuncio "${title}" fue superado. Puja $${nextBidAmount} para recuperarlo: ${bumpUrl}\n====================================\n`
   );
 
-  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "re_mock") {
+  if (!resend) {
     return;
   }
 
@@ -71,7 +72,7 @@ export async function sendWelcomeEmail(
     `\n=== [EMAIL ENVIADO A: ${email}] ===\nAsunto: ¡Tu anuncio está activo en ${siteConfig.name}!\nCuerpo: Felicitaciones por tu anuncio "${title}". Puedes gestionarlo y editarlo aquí: ${manageUrl}\n====================================\n`
   );
 
-  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "re_mock") {
+  if (!resend) {
     return;
   }
 

@@ -1,12 +1,20 @@
 export const siteConfig = {
-  name: "rankinguponline",
-  domain: "rankinguponline.com",
+  name: "RankeandoUp",
+  domain: "rankeandoup.com",
   description: "La plataforma de subastas publicitarias en tiempo real. Compite por el puesto número #1 y destaca tu negocio ante miles de usuarios.",
   currency: "ARS",
   currencySymbol: "$",
   minBidStep: 100, // Salto mínimo para superar una puja en ARS
   baseMinBid: 500, // Puja mínima inicial si la grilla está vacía
-  contactEmail: "soporte@rankinguponline.com",
+  contactEmail: "soporte@rankeandoup.com",
+  adminSecretKey: process.env.ADMIN_SECRET_KEY ?? "",
+  bankDetails: {
+    alias: "gblanco.25",
+    cbu: "1430001713016048770018",
+    accountNumber: "1301604877001",
+    bank: "Brubank",
+    whatsappNumber: "5491123456789", // Reemplazar con tu número de WhatsApp con código de país sin +
+  },
   platforms: {
     instagram: {
       label: "Instagram",

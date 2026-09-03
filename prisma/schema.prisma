@@ -18,6 +18,8 @@ model Card {
   editToken    String        @unique
   currentBid   Float         @default(0.0)
   position     Int           @default(100)
+  views        Int           @default(0)
+  clicks       Int           @default(0)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   bids         Bid[]

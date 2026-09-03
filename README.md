@@ -1,4 +1,4 @@
-# rankinguponline
+# RankeandoUp
 
 Plataforma de subastas publicitarias en tiempo real. Los anunciantes crean tarjetas, compiten por posiciones mediante pujas y reciben notificaciones cuando son superados.
 
@@ -27,9 +27,11 @@ La aplicación ya no usa SQLite. No se deben guardar credenciales reales en el r
 
 Nunca subas `.env` ni claves reales. Consulta `.env.example` para conocer los nombres esperados.
 
+- `ADMIN_SECRET_KEY`: clave secreta del panel de administración. No debe quedar con valor por defecto ni vacío en producción.
 - `MP_ACCESS_TOKEN`: token privado de Mercado Pago.
+- `MP_WEBHOOK_SECRET`: secreto compartido de webhook de Mercado Pago cuando lo habilites para validación del callback.
 - `MP_WEBHOOK_URL`: URL pública de `/api/webhook`; Mercado Pago consulta el pago directamente antes de actualizar la grilla.
-- `NEXT_PUBLIC_SITE_URL`: URL pública usada en retornos, correos y widget.
+- `NEXT_PUBLIC_SITE_URL`: URL pública usada en retornos, correos y widget. Debe ser HTTPS y apuntar al dominio de producción.
 - `RESEND_API_KEY`: API key de Resend. Si falta, los correos se muestran en consola durante desarrollo.
 
 Las variables `SUPABASE_SERVICE_ROLE_KEY` y `SUPABASE_SECRET_KEY` son exclusivamente de servidor. Nunca deben llevar el prefijo `NEXT_PUBLIC_`.
