@@ -5,6 +5,7 @@ import { siteConfig } from "@/config/site";
 import CardItem from "@/components/CardItem";
 import AdCard from "@/components/AdCard";
 import StickyFooterAd from "@/components/StickyFooterAd";
+import FireworksTrigger from "@/components/FireworksTrigger";
 import { 
   Zap, 
   Sparkles, 
@@ -12,14 +13,26 @@ import {
   ArrowRight, 
   ShieldCheck, 
   Mail,
-  Scale
+  Scale,
+  Crown,
+  Flame,
+  TrendingUp,
+  Activity
 } from "lucide-react";
 
-// Forzar renderizado dinámico para ver actualizaciones de pujas en tiempo real al recargar
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  // 1. Obtener tarjetas activas desde la base de datos
+  // 1. Incrementar vistas y obtener tarjetas activas desde la base de datos
+  try {
+    await prisma.card.updateMany({
+      where: { currentBid: { gt: 0 } },
+      data: { views: { increment: 1 } },
+    });
+  } catch (e) {
+    console.error("Error al incrementar vistas:", e);
+  }
+
   const activeCards = await prisma.card.findMany({
     where: {
       currentBid: { gt: 0 },
@@ -34,14 +47,12 @@ export default async function HomePage() {
     ? numberOneCard.currentBid + siteConfig.minBidStep
     : siteConfig.baseMinBid;
 
-  // 2. Construir la grilla mezclando tarjetas reales, anuncios nativos y placeholders
-  // Queremos mostrar al menos 8 posiciones en la grilla para que tenga estructura
+  // 2. Grilla con anuncios nativos intercalados
   const totalSlots = Math.max(activeCards.length + 2, 8);
   const gridElements = [];
 
   let cardIndex = 0;
   for (let pos = 1; pos <= totalSlots; pos++) {
-    // Intercalar anuncios nativos en las posiciones #4 y #7 (índices de grilla 4 y 7)
     if (pos === 4) {
       gridElements.push({ type: "ad", slot: "slot-4-native", key: `ad-${pos}` });
       continue;
@@ -51,7 +62,6 @@ export default async function HomePage() {
       continue;
     }
 
-    // Si tenemos una tarjeta real para esta posición
     const currentCard = activeCards[cardIndex];
     if (currentCard) {
       gridElements.push({
@@ -62,7 +72,6 @@ export default async function HomePage() {
       });
       cardIndex++;
     } else {
-      // Si no hay tarjeta real, creamos un placeholder disponible para compra
       gridElements.push({
         type: "placeholder",
         position: pos,
@@ -72,75 +81,115 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col justify-between pb-24 md:pb-32">
-      {/* 1. Encabezado */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-gray-100 dark:border-zinc-900 py-4 px-4 sm:px-6 lg:px-8">
+    <div className="flex-1 flex flex-col justify-between pb-28 md:pb-36 relative">
+      <FireworksTrigger />
+      
+      {/* 1. Encabezado Luminoso */}
+      <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/80 py-4 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center shadow-md shadow-amber-500/20">
-              <Zap className="w-5 h-5 text-white fill-current" />
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 flex items-center justify-center shadow-lg shadow-amber-500/25 group-hover:scale-105 transition-transform">
+              <Zap className="w-5 h-5 text-zinc-950 fill-current" />
             </div>
-            <span className="font-black text-xl tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">
-              {siteConfig.name}
-            </span>
+            <div>
+              <span className="font-black text-xl tracking-tight bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-200 bg-clip-text text-transparent block">
+                {siteConfig.name}
+              </span>
+              <span className="text-[10px] text-zinc-400 font-bold tracking-widest uppercase block -mt-1">
+                Live Ad Board
+              </span>
+            </div>
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link
               href="/crear"
-              className="py-2 px-4 md:px-5 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-extrabold text-sm rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+              className="py-2.5 px-5 bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-400 text-zinc-950 hover:brightness-110 font-black text-sm rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center gap-2 active:scale-95"
             >
-              <Sparkles className="w-4 h-4 fill-current text-amber-500" />
-              <span>Anunciar</span>
+              <Sparkles className="w-4 h-4 fill-current text-zinc-950" />
+              <span>Conquistar Puesto</span>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* 2. Hero / Cabecera Informativa */}
+      {/* 2. Hero Vibrante & Banner de Subasta */}
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-12">
         
-        {/* Banner de Estado del Puesto #1 */}
-        <div className="bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-yellow-500/5 border border-amber-500/10 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center md:text-left">
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-              <Zap className="w-3.5 h-3.5 fill-current" />
-              Subasta Publicitaria Activa
+        {/* Banner Hero con Gradiente y Resplandor */}
+        <div className="relative overflow-hidden bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border border-amber-500/30 rounded-3xl p-6 md:p-10 shadow-2xl shadow-amber-500/5">
+          {/* Luces de Fondo */}
+          <div className="absolute -top-24 -left-24 w-72 h-72 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="space-y-4 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-black tracking-wider uppercase">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                <Activity className="w-3.5 h-3.5" />
+                <span>Subasta Publicitaria en Vivo</span>
+              </div>
+
+              <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                El Puesto #1 se Conquista con{" "}
+                <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 bg-clip-text text-transparent">
+                  la Mejor Puja
+                </span>
+              </h1>
+
+              <p className="text-sm md:text-base text-zinc-400 max-w-2xl leading-relaxed">
+                Destaca tu negocio, perfil o marca en la cima de la grilla. Cuando superas la puja del líder, tomas el <strong>Puesto #1</strong> de inmediato.
+              </p>
+
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2 text-xs font-semibold text-zinc-300">
+                <div className="flex items-center gap-1.5 bg-zinc-800/80 px-3 py-1.5 rounded-lg border border-zinc-700">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span>Sin Registro / Sin Contraseñas</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-zinc-800/80 px-3 py-1.5 rounded-lg border border-zinc-700">
+                  <TrendingUp className="w-4 h-4 text-purple-400" />
+                  <span>Actualización Inmediata</span>
+                </div>
+              </div>
             </div>
-            <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-              {numberOneCard 
-                ? `Puesto #1 ocupado por ${siteConfig.currencySymbol}${numberOneCard.currentBid.toLocaleString('es-AR')}`
-                : "¡El Puesto #1 está disponible!"}
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-zinc-400 max-w-xl leading-relaxed">
-              Supera al líder actual y quédate con la posición más visible de la grilla. Las actualizaciones son automáticas tras validarse el pago.
-            </p>
-          </div>
-          
-          <div className="shrink-0 text-center md:text-right space-y-3">
-            <div className="text-xs text-gray-400 dark:text-zinc-500 font-bold uppercase">
-              Puja mínima para Puesto #1
+            
+            {/* Tarjeta de Puja Rápida de Hero */}
+            <div className="w-full lg:w-auto shrink-0 bg-gradient-to-b from-zinc-800/90 to-zinc-900/90 border border-amber-500/40 rounded-2xl p-6 text-center space-y-4 shadow-xl backdrop-blur-xl">
+              <div className="flex items-center justify-center gap-1.5 text-xs text-amber-400 font-extrabold uppercase tracking-wider">
+                <Crown className="w-4 h-4 fill-amber-400 text-amber-400 animate-bounce" />
+                <span>Para tomar el Puesto #1</span>
+              </div>
+
+              <div>
+                <div className="text-xs text-zinc-400 font-semibold mb-1">Puja mínima requerida:</div>
+                <div className="text-3xl md:text-4xl font-black bg-gradient-to-r from-amber-300 via-yellow-200 to-white bg-clip-text text-transparent">
+                  {siteConfig.currencySymbol}{nextMinBid.toLocaleString('es-AR')}{" "}
+                  <span className="text-sm font-bold text-amber-400">{siteConfig.currency}</span>
+                </div>
+              </div>
+
+              <Link
+                href="/crear"
+                className="w-full py-3.5 px-6 bg-gradient-to-r from-amber-500 to-orange-500 hover:brightness-110 text-zinc-950 font-black text-sm rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
+              >
+                <span>Pujar por el Puesto #1</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
-            <div className="text-3xl font-black text-gray-900 dark:text-white">
-              {siteConfig.currencySymbol}
-              {nextMinBid.toLocaleString('es-AR')}{" "}
-              <span className="text-sm text-gray-400 font-bold">{siteConfig.currency}</span>
-            </div>
-            <Link
-              href="/crear"
-              className="inline-flex items-center gap-1.5 py-3 px-6 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm rounded-xl transition-all shadow-md shadow-amber-500/15"
-            >
-              Pujar por Puesto #1
-              <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
         </div>
 
-        {/* 3. Grilla Principal de Puestos */}
+        {/* 3. Grilla Principal de Posiciones */}
         <div className="space-y-6">
-          <h3 className="font-extrabold text-lg text-gray-800 dark:text-zinc-200">
-            Posiciones Destacadas
-          </h3>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl md:text-2xl font-black text-white flex items-center gap-2">
+              <Flame className="w-6 h-6 text-orange-500 fill-orange-500" />
+              <span>Grilla de Posiciones en Tiempo Real</span>
+            </h2>
+            <span className="text-xs font-bold text-zinc-400 bg-zinc-800/60 px-3 py-1 rounded-full border border-zinc-700/60">
+              {activeCards.length} anunciantes activos
+            </span>
+          </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {gridElements.map((el) => {
@@ -160,45 +209,45 @@ export default async function HomePage() {
                     targetUrl={cardData.targetUrl}
                     platform={cardData.platform}
                     currentBid={cardData.currentBid}
-                    onBidClick={() => {}} // Redirige por defecto mediante el link, o podemos hacer toggle del form
+                    views={cardData.views}
                   />
                 );
               }
 
-              // Renderizado de Placeholder
+              // Placeholder para puestos disponibles con diseño colorido
               const placeholderBid = siteConfig.baseMinBid;
               return (
                 <div
                   key={el.key}
-                  className="p-0.5 bg-gray-100 dark:bg-zinc-900 border border-dashed border-gray-300 dark:border-zinc-800 rounded-2xl flex flex-col justify-between min-h-[300px] hover:border-amber-400 dark:hover:border-amber-500/50 hover:bg-white dark:hover:bg-zinc-850/10 transition-all duration-300 group"
+                  className="relative group p-[1px] rounded-2xl bg-gradient-to-b from-zinc-800/80 to-zinc-900/80 hover:from-amber-500/40 hover:to-purple-500/40 transition-all duration-300"
                 >
-                  <div className="p-5 flex flex-col justify-between h-full flex-1">
+                  <div className="bg-zinc-950/80 rounded-[15px] p-5 flex flex-col justify-between h-full min-h-[290px] border border-dashed border-zinc-800 group-hover:border-transparent transition-colors">
                     <div>
                       <div className="flex justify-between items-center mb-3">
-                        <span className="text-[10px] font-bold bg-gray-200/60 text-gray-500 dark:bg-zinc-800 dark:text-zinc-500 px-2 py-0.5 rounded-full uppercase">
-                          Puesto #{el.position} Disponible
+                        <span className="text-[10px] font-black bg-zinc-800/90 text-zinc-400 group-hover:text-amber-300 group-hover:bg-amber-500/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider transition-colors">
+                          Puesto #{el.position}
                         </span>
-                        <span className="text-xs font-bold text-gray-400 dark:text-zinc-650">
+                        <span className="text-xs font-black text-zinc-500 group-hover:text-zinc-300">
                           {siteConfig.currencySymbol}{placeholderBid}
                         </span>
                       </div>
                       
-                      <div className="py-6 flex flex-col items-center justify-center text-center space-y-2">
-                        <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-gray-400 dark:text-zinc-600 font-bold group-hover:bg-amber-100 group-hover:text-amber-600 transition-colors">
+                      <div className="py-6 flex flex-col items-center justify-center text-center space-y-2.5">
+                        <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500 font-black group-hover:bg-amber-500 group-hover:text-zinc-950 group-hover:scale-110 transition-all shadow-md">
                           +
                         </div>
-                        <h4 className="font-extrabold text-sm text-gray-600 dark:text-zinc-400 group-hover:text-amber-500 transition-colors">
+                        <h4 className="font-extrabold text-sm text-zinc-300 group-hover:text-amber-400 transition-colors">
                           ¡Tu Anuncio Aquí!
                         </h4>
-                        <p className="text-[11px] text-gray-400 dark:text-zinc-550 leading-relaxed max-w-[180px]">
-                          Adquiere este puesto pujando desde el valor mínimo.
+                        <p className="text-[11px] text-zinc-500 leading-relaxed max-w-[200px]">
+                          Conquista este espacio con una puja inicial.
                         </p>
                       </div>
                     </div>
 
                     <Link
                       href={`/crear`}
-                      className="w-full py-2 bg-gray-100 dark:bg-zinc-800 group-hover:bg-zinc-900 dark:group-hover:bg-zinc-100 text-gray-700 dark:text-zinc-300 group-hover:text-white dark:group-hover:text-zinc-900 rounded-lg text-xs font-bold text-center transition-all block mt-2"
+                      className="w-full py-2.5 bg-zinc-900 group-hover:bg-gradient-to-r group-hover:from-amber-500 group-hover:to-orange-500 text-zinc-400 group-hover:text-zinc-950 rounded-xl text-xs font-black text-center transition-all block mt-2 border border-zinc-800 group-hover:border-transparent shadow-sm"
                     >
                       Pujar Posición
                     </Link>
@@ -209,56 +258,56 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* 4. Sección de Preguntas Frecuentes */}
-        <div className="border-t border-gray-100 dark:border-zinc-900 pt-12 max-w-4xl mx-auto space-y-6">
-          <div className="text-center space-y-1">
-            <h3 className="text-xl font-extrabold text-gray-900 dark:text-white flex items-center justify-center gap-1.5">
-              <HelpCircle className="w-5 h-5 text-amber-500" />
-              ¿Cómo funciona {siteConfig.name}?
+        {/* 4. Sección Informativa con Acentos Neón */}
+        <div className="border-t border-zinc-800/80 pt-14 max-w-4xl mx-auto space-y-8">
+          <div className="text-center space-y-2">
+            <h3 className="text-2xl font-black text-white flex items-center justify-center gap-2">
+              <HelpCircle className="w-6 h-6 text-amber-400" />
+              <span>¿Cómo funciona {siteConfig.name}?</span>
             </h3>
-            <p className="text-sm text-gray-500 dark:text-zinc-400">
-              Una grilla dinámica de enlaces organizada de forma totalmente automatizada.
+            <p className="text-sm text-zinc-400">
+              Subastas de visibilidad 100% automatizadas y sin comisiones abusivas.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-            <div className="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-100 dark:border-zinc-850 space-y-2">
-              <h4 className="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
-                <span className="w-2 h-2 bg-amber-500 rounded-full" />
-                ¿Qué es una puja en tiempo real?
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+            <div className="bg-zinc-900/70 backdrop-blur-md p-6 rounded-2xl border border-zinc-800 space-y-2.5 hover:border-amber-500/30 transition-colors">
+              <h4 className="font-bold text-sm text-amber-400 flex items-center gap-2">
+                <span className="w-2 h-2 bg-amber-400 rounded-full" />
+                Subasta en Tiempo Real
               </h4>
-              <p className="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                El puesto #1 pertenece al anunciante que ofrezca la puja más alta en pesos argentinos. Si otro anunciante realiza una puja mayor, toma el puesto #1 al instante y desplaza tu tarjeta una posición hacia abajo.
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                El puesto #1 pertenece al anunciante con la puja aprobada más alta. Si alguien te supera, tu tarjeta desciende automáticamente al puesto #2, #3, etc.
               </p>
             </div>
 
-            <div className="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-150 dark:border-zinc-850 space-y-2">
-              <h4 className="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
-                <span className="w-2 h-2 bg-amber-500 rounded-full" />
-                ¿Qué pasa si me superan en la puja?
+            <div className="bg-zinc-900/70 backdrop-blur-md p-6 rounded-2xl border border-zinc-800 space-y-2.5 hover:border-purple-500/30 transition-colors">
+              <h4 className="font-bold text-sm text-purple-400 flex items-center gap-2">
+                <span className="w-2 h-2 bg-purple-400 rounded-full" />
+                Reenganche Inmediato por Correo
               </h4>
-              <p className="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                Nuestro sistema te enviará automáticamente un correo electrónico de reenganche avisándote que has sido superado y dándote un enlace secreto para que puedas aumentar tu puja fácilmente y recuperar el puesto líder.
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Si pierdes el Puesto #1, te enviamos un email instantáneo con tu enlace secreto para que puedas aumentar tu puja con 1 clic y recuperar tu liderazgo.
               </p>
             </div>
 
-            <div className="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-150 dark:border-zinc-850 space-y-2">
-              <h4 className="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
-                <span className="w-2 h-2 bg-amber-500 rounded-full" />
-                ¿Es seguro el sistema de pagos?
+            <div className="bg-zinc-900/70 backdrop-blur-md p-6 rounded-2xl border border-zinc-800 space-y-2.5 hover:border-emerald-500/30 transition-colors">
+              <h4 className="font-bold text-sm text-emerald-400 flex items-center gap-2">
+                <span className="w-2 h-2 bg-emerald-400 rounded-full" />
+                Transferencia Directa (0% Comisiones)
               </h4>
-              <p className="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                Totalmente. Integramos de manera nativa la API de Mercado Pago. Todas las transacciones se realizan bajo los protocolos de seguridad de la pasarela y las actualizaciones se validan mediante Webhooks firmados en el backend.
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Paga directamente por Alias o CBU desde cualquier billetera (Mercado Pago, Cuenta DNI, Banco) sin intermediarios ni retenciones extra.
               </p>
             </div>
 
-            <div className="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-150 dark:border-zinc-850 space-y-2">
-              <h4 className="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
-                <span className="w-2 h-2 bg-amber-500 rounded-full" />
-                ¿Tengo que registrarme?
+            <div className="bg-zinc-900/70 backdrop-blur-md p-6 rounded-2xl border border-zinc-800 space-y-2.5 hover:border-cyan-500/30 transition-colors">
+              <h4 className="font-bold text-sm text-cyan-400 flex items-center gap-2">
+                <span className="w-2 h-2 bg-cyan-400 rounded-full" />
+                Kit de Instagram Story y Widget
               </h4>
-              <p className="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                No. Creemos en la agilidad del servicio. Rellenas la tarjeta, ingresas el monto, pagas y listo. Para cualquier modificación futura, usas el enlace secreto que llega a tu email.
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Al ganar una posición, descargas gratis una imagen adaptada a Instagram Stories anunciando tu Puesto #1 con código QR y obtienes un Widget HTML para tu web.
               </p>
             </div>
           </div>
@@ -267,27 +316,27 @@ export default async function HomePage() {
       </main>
 
       {/* 5. Pie de Página */}
-      <footer className="border-t border-gray-100 dark:border-zinc-900 bg-white dark:bg-zinc-950 py-8 px-4 sm:px-6 lg:px-8 mt-auto">
+      <footer className="border-t border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md py-8 px-4 sm:px-6 lg:px-8 mt-auto">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-black text-sm text-gray-900 dark:text-white">
+            <span className="font-black text-sm text-amber-400">
               {siteConfig.name}
             </span>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-zinc-500">
               &copy; {new Date().getFullYear()} Todos los derechos reservados.
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-gray-500 dark:text-zinc-400 font-semibold">
-            <Link href="/terminos" className="hover:text-gray-950 dark:hover:text-white flex items-center gap-1">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-400 font-semibold">
+            <Link href="/terminos" className="hover:text-amber-400 transition-colors flex items-center gap-1">
               <Scale className="w-3.5 h-3.5" />
               Términos y Condiciones
             </Link>
-            <Link href="/privacidad" className="hover:text-gray-950 dark:hover:text-white flex items-center gap-1">
+            <Link href="/privacidad" className="hover:text-amber-400 transition-colors flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" />
               Políticas de Privacidad
             </Link>
-            <a href={`mailto:${siteConfig.contactEmail}`} className="hover:text-gray-950 dark:hover:text-white flex items-center gap-1">
+            <a href={`mailto:${siteConfig.contactEmail}`} className="hover:text-amber-400 transition-colors flex items-center gap-1">
               <Mail className="w-3.5 h-3.5" />
               Contacto
             </a>
@@ -295,7 +344,7 @@ export default async function HomePage() {
         </div>
       </footer>
 
-      {/* Anuncio Fijo Inferior (Sticky Footer) */}
+      {/* Anuncio Fijo Inferior */}
       <StickyFooterAd />
     </div>
   );
