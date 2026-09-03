@@ -23,6 +23,20 @@ La aplicación ya no usa SQLite. No se deben guardar credenciales reales en el r
 
 `.env` y todos los archivos `.env.*` (excepto `.env.example`) están excluidos de Git. Las claves secretas de Supabase, Mercado Pago y Resend deben configurarse únicamente como variables privadas en Vercel o en el entorno local. Nunca uses una clave `SUPABASE_SECRET_KEY` o `SUPABASE_SERVICE_ROLE_KEY` con el prefijo `NEXT_PUBLIC_`.
 
+### Error P1000 / 28P01 al conectar con Supabase
+
+Este error significa que PostgreSQL rechazo el usuario o la contrasena. En Supabase,
+restablece la contrasena desde **Project Settings -> Database -> Reset database
+password**, copia nuevamente las cadenas de conexion y reemplaza los valores locales
+y de Vercel. Si la contrasena contiene caracteres especiales (`@`, `:`, `/`, `#`,
+`?`, espacios o caracteres Unicode), usa la cadena copiada directamente desde
+Supabase o aplica URL encoding a la contrasena; no la escribas a mano dentro de la
+URL.
+
+`DATABASE_URL` debe usar el pooler (normalmente puerto `6543`) y `DIRECT_URL` la
+conexion directa (puerto `5432`). Despues de actualizar las variables, reinicia
+`npm run dev` y valida con `npm run db:generate` y `npm run build`.
+
 ## Variables de entorno
 
 Nunca subas `.env` ni claves reales. Consulta `.env.example` para conocer los nombres esperados.
