@@ -1,4 +1,4 @@
-# RankeandoUp
+# RankingUp
 
 Plataforma de subastas publicitarias en tiempo real. Los anunciantes crean tarjetas, compiten por posiciones mediante pujas y reciben notificaciones cuando son superados.
 

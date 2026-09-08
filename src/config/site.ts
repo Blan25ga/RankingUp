@@ -1,12 +1,12 @@
 export const siteConfig = {
-  name: "RankeandoUp",
-  domain: "rankeandoup.com",
+  name: "RankingUp",
+  domain: "rankingup.online",
   description: "La plataforma de subastas publicitarias en tiempo real. Compite por el puesto número #1 y destaca tu negocio ante miles de usuarios.",
   currency: "ARS",
   currencySymbol: "$",
   minBidStep: 100, // Salto mínimo para superar una puja en ARS
   baseMinBid: 500, // Puja mínima inicial si la grilla está vacía
-  contactEmail: "soporte@rankeandoup.com",
+  contactEmail: "soporte@rankingup.online",
   adminSecretKey: process.env.ADMIN_SECRET_KEY ?? "",
   bankDetails: {
     alias: "gblanco.25",

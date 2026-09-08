@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { siteConfig } from "@/config/site";
 import CardItem from "@/components/CardItem";
@@ -88,8 +89,15 @@ export default async function HomePage() {
       <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/80 py-4 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 flex items-center justify-center shadow-lg shadow-amber-500/25 group-hover:scale-105 transition-transform">
-              <Zap className="w-5 h-5 text-zinc-950 fill-current" />
+            <div className="relative w-36 h-12 group-hover:scale-105 transition-transform">
+              <Image
+                src="/brand/rankingup-logo.jpg"
+                alt="RankingUp"
+                fill
+                priority
+                sizes="144px"
+                className="object-contain"
+              />
             </div>
             <div>
               <span className="font-black text-xl tracking-tight bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-200 bg-clip-text text-transparent block">

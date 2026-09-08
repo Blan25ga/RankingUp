@@ -257,7 +257,7 @@ function ExitoContent() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const link = document.createElement("a");
-    link.download = `rankeandoup_puesto_1_${card?.title.toLowerCase().replace(/\s+/g, "_")}.png`;
+    link.download = `rankingup_puesto_1_${card?.title.toLowerCase().replace(/\s+/g, "_")}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
   };

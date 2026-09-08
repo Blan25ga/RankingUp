@@ -1,4 +1,4 @@
-# Pruebas de RankeandoUp
+# Pruebas de RankingUp
 
 ## Vitest
 
