@@ -161,16 +161,16 @@ export default function CardItem({
 
         {/* Acciones */}
         <div className="flex items-center gap-3 mt-4 pt-3.5 border-t border-zinc-800/80">
-          <a
-            href={targetUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => window.open(targetUrl, "_blank", "noopener,noreferrer")}
+            aria-label={`${ctaText}: ${title}`}
             className={`flex-1 rounded-xl text-center transition-all flex items-center justify-center gap-2 ${getCtaButtonStyle()}`}
           >
             {isNumberOne && <Sparkles className="w-4 h-4 fill-zinc-950" />}
             <span>{ctaText}</span>
             <ArrowUpRight className="w-4 h-4" />
-          </a>
+          </button>
           
           <button
             onClick={onBidClick}
