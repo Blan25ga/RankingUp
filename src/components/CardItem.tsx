@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { 
   ArrowUpRight, 
@@ -22,7 +20,6 @@ interface CardItemProps {
   platform: string;
   currentBid: number;
   views?: number;
-  onBidClick?: () => void;
 }
 
 export default function CardItem({
@@ -34,7 +31,6 @@ export default function CardItem({
   platform,
   currentBid,
   views = 0,
-  onBidClick,
 }: CardItemProps) {
   const getIcon = () => {
     switch (platform.toLowerCase()) {
@@ -163,19 +159,19 @@ export default function CardItem({
 
         {/* Acciones */}
         <div className="flex items-center gap-3 mt-4 pt-3.5 border-t border-zinc-800/80">
-          <button
-            type="button"
-            onClick={() => window.open(targetUrl, "_blank", "noopener,noreferrer")}
-            aria-label={`${ctaText}: ${title}`}
-            className={`flex-1 rounded-xl text-center transition-all flex items-center justify-center gap-2 ${getCtaButtonStyle()}`}
-          >
-            {isNumberOne && <Sparkles className="w-4 h-4 fill-zinc-950" />}
-            <span>{ctaText}</span>
-            <ArrowUpRight className="w-4 h-4" />
-          </button>
+          <form action={targetUrl} method="get" target="_blank" className="flex-1">
+            <button
+              type="submit"
+              aria-label={`${ctaText}: ${title}`}
+              className={`w-full rounded-xl text-center transition-all flex items-center justify-center gap-2 ${getCtaButtonStyle()}`}
+            >
+              {isNumberOne && <Sparkles className="w-4 h-4 fill-zinc-950" />}
+              <span>{ctaText}</span>
+              <ArrowUpRight className="w-4 h-4" />
+            </button>
+          </form>
           
           <button
-            onClick={onBidClick}
             className={`rounded-xl border transition-all flex items-center justify-center gap-1.5 font-bold ${
               isNumberOne
                 ? "py-3 px-4 text-xs border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 shadow-md shadow-amber-500/10"
